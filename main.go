@@ -20,6 +20,8 @@ func main() {
 		cmd.Sync(context)
 	case arg_parser.Today:
 		cmd.Today(context)
+	case arg_parser.Projects:
+		cmd.ListProjects(context)
 	case arg_parser.List:
 		cmd.List(context)
 	case arg_parser.Add:

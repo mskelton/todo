@@ -21,19 +21,20 @@ const (
 type Command string
 
 const (
-	Today   Command = "today"
-	Sync    Command = "sync"
-	List    Command = "list"
-	Add     Command = "add"
-	Done    Command = "done"
-	Edit    Command = "edit"
-	Show    Command = "show"
-	Start   Command = "start"
-	Stop    Command = "stop"
-	Get     Command = "get"
-	Delete  Command = "delete"
-	Help    Command = "help"
-	Version Command = "version"
+	Today    Command = "today"
+	Projects Command = "projects"
+	Sync     Command = "sync"
+	List     Command = "list"
+	Add      Command = "add"
+	Done     Command = "done"
+	Edit     Command = "edit"
+	Show     Command = "show"
+	Start    Command = "start"
+	Stop     Command = "stop"
+	Get      Command = "get"
+	Delete   Command = "delete"
+	Help     Command = "help"
+	Version  Command = "version"
 )
 
 type Filter interface{}
@@ -84,7 +85,7 @@ type ContextConfig struct {
 
 func commandFromStr(str string) (Command, bool) {
 	switch Command(str) {
-	case Sync, Today, List, Add, Done, Edit, Show, Start, Stop, Get, Delete, Help, Version:
+	case Sync, Projects, Today, List, Add, Done, Edit, Show, Start, Stop, Get, Delete, Help, Version:
 		return Command(str), true
 	case "ls":
 		return List, true
