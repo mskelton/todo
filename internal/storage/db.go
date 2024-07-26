@@ -1,10 +1,12 @@
 package storage
 
 import (
-	"database/sql"
 	"errors"
 	"os"
 	"path/filepath"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -31,39 +33,30 @@ func getDBPath() (string, error) {
 	return filepath.Join(dir, "todo.db"), nil
 }
 
-func connect() (*sql.DB, error) {
+var db *gorm.DB
+
+func GetDB() (*gorm.DB, error) {
+	// Return the cached DB if available
+	if db != nil {
+		return db, nil
+	}
+
+	// Get the DB path
 	path, err := getDBPath()
 	if err != nil {
 		return nil, errors.New("Invalid database path")
 	}
 
-	conn, err := sql.Open("sqlite3", path)
+	// Open a new connection to the DB
+	db, err = gorm.Open(sqlite.Open(path), &gorm.Config{})
+	return db, err
+}
+
+func Migrate() error {
+	db, err := GetDB()
 	if err != nil {
-		return nil, errors.New("Failed to connect to database")
+		return err
 	}
 
-	query := `
-	    CREATE TABLE IF NOT EXISTS tasks (
-	        id TEXT PRIMARY KEY,
-	        template_id INTEGER,
-	        data TEXT NOT NULL
-	    );
-
-	    CREATE TABLE IF NOT EXISTS templates (
-	        id TEXT PRIMARY KEY,
-	        data TEXT NOT NULL
-	    );
-
-	    CREATE TABLE IF NOT EXISTS assignments (
-	        id INTEGER PRIMARY KEY,
-	        task_id TEXT NOT NULL
-	    );
-	`
-
-	_, err = conn.Exec(query)
-	if err != nil {
-		return nil, errors.New("Migration failed")
-	}
-
-	return conn, nil
+	return db.AutoMigrate(&Project{})
 }

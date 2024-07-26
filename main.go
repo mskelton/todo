@@ -12,7 +12,12 @@ func main() {
 	parser := arg_parser.New()
 	context := parser.Parse(args)
 
+	// TODO: Add smart syncing
+	// cmd.Sync(context)
+
 	switch context.Command {
+	case arg_parser.Sync:
+		cmd.Sync(context)
 	case arg_parser.Today:
 		cmd.Today(context)
 	case arg_parser.List:

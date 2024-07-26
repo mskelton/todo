@@ -22,6 +22,7 @@ type Command string
 
 const (
 	Today   Command = "today"
+	Sync    Command = "sync"
 	List    Command = "list"
 	Add     Command = "add"
 	Done    Command = "done"
@@ -83,7 +84,7 @@ type ContextConfig struct {
 
 func commandFromStr(str string) (Command, bool) {
 	switch Command(str) {
-	case Today, List, Add, Done, Edit, Show, Start, Stop, Get, Delete, Help, Version:
+	case Sync, Today, List, Add, Done, Edit, Show, Start, Stop, Get, Delete, Help, Version:
 		return Command(str), true
 	case "ls":
 		return List, true
