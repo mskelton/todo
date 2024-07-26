@@ -21,6 +21,8 @@ func Sync(ctx arg_parser.ParseContext) error {
 		return err
 	}
 
+	db.Where("true").Delete(storage.Project{})
 	tx := db.Create(&res.Projects)
+
 	return tx.Error
 }
