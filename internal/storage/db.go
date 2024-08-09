@@ -58,5 +58,8 @@ func Migrate() error {
 		return err
 	}
 
-	return db.AutoMigrate(&Project{})
+	return errors.Join(
+		db.AutoMigrate(&Project{}),
+		db.AutoMigrate(&Task{}),
+	)
 }

@@ -13,6 +13,7 @@ import (
 type SyncResponse struct {
 	FullSync      bool              `json:"full_sync"`
 	Projects      []Project         `json:"projects"`
+	Tasks         []Task            `json:"items"`
 	SyncToken     string            `json:"sync_token"`
 	TempIDMapping map[string]uint32 `json:"temp_id_mapping"`
 }
@@ -33,7 +34,7 @@ func Sync(syncToken string) (*SyncResponse, error) {
 	}
 
 	data := map[string]interface{}{
-		"resource_types": []string{"projects"},
+		"resource_types": []string{"items", "projects"},
 		"sync_token":     syncToken,
 	}
 	jsonData, err := json.Marshal(data)

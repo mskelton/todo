@@ -1,12 +1,18 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/mskelton/todo/internal/arg_parser"
+	"github.com/mskelton/todo/internal/printer"
+	"github.com/mskelton/todo/internal/storage"
 )
 
 func Today(ctx arg_parser.ParseContext) error {
-	fmt.Println("not implemented")
+	tasks, err := storage.ListTasks()
+	if err != nil {
+		return err
+	}
+
+	printer.PrintTasks(tasks)
+
 	return nil
 }

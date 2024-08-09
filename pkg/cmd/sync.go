@@ -22,7 +22,10 @@ func Sync(ctx arg_parser.ParseContext) error {
 	}
 
 	db.Where("true").Delete(storage.Project{})
+	db.Where("true").Delete(storage.Task{})
+
 	db.Create(&res.Projects)
+	db.Create(&res.Tasks)
 
 	return nil
 }

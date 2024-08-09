@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"time"
-
 	"github.com/fatih/color"
 	"github.com/mskelton/todo/internal/arg_parser"
 	"github.com/mskelton/todo/internal/printer"
@@ -38,18 +36,13 @@ func ListProjects(ctx arg_parser.ParseContext) error {
 			favorite = "✔︎"
 		}
 
-		createdAt, err := time.Parse("2006-01-02T15:04:05Z", project.CreatedAt)
-		if err != nil {
-			return err
-		}
-
 		table.Rows = append(table.Rows, printer.Row{
 			Cells: []string{
 				// strconv.Itoa(int(project.ChildOrder)),
 				project.ID,
 				project.Name,
 				favorite,
-				utils.ShortDuration(createdAt),
+				utils.ShortDuration(project.CreatedAt, "-"),
 			},
 		})
 	}

@@ -2,124 +2,70 @@ package storage
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"github.com/mskelton/todo/internal/sql_builder"
-	"github.com/mskelton/todo/internal/utils"
+	"gorm.io/datatypes"
 )
 
-type TaskStatus string
-
-const (
-	TaskStatusPending TaskStatus = "pending"
-	TaskStatusActive  TaskStatus = "active"
-	TaskStatusDone    TaskStatus = "done"
-)
+type DueDate struct {
+	Date        string `json:"date"`
+	IsRecurring bool   `json:"is_recurring"`
+	Lang        string `json:"lang"`
+	String      string `json:"string"`
+	Timezone    string `json:"timezone"`
+}
 
 type Task struct {
-	// The unique identifier for the task
-	Id string
-	// A short numerical identifier for the task, used for quick reference in the UI.
-	ShortId int
-	// The parent recurrence template the task was created from (if any). This
-	// is used when finding other tasks from the same recurrence template or
-	// when modifying the recurrence options.
-	TemplateId string
-	// The title of the task
-	Title string `json:"title"`
-	// The priority of the task, typically something like `H`, `M`, or `L`,
-	// though the values are user-defined.
-	Priority string `json:"priority"`
-	// The status of the task, one of `pending`, `active`, or `done`. Tasks
-	// start as `pending`, and can move between `active`, `pending`, and `done`
-	// as the user sees fit. Typically a task does not move from done to the
-	// other statuses, but it is not enforced.
-	Status TaskStatus `json:"status"`
-	// A list of tags for the task. Tags are useful for grouping tasks together
-	// and can be used to filter tasks in the UI.
-	Tags []string `json:"tags"`
-	// The time the task was created
-	CreatedAt time.Time `json:"created_at"`
-	// The time the task was last updated
-	UpdatedAt time.Time `json:"updated_at"`
+	AddedAt        string                       `json:"added_at"`
+	AddedByUID     string                       `json:"added_by_uid"`
+	AssignedByUID  *string                      `json:"assigned_by_uid"`
+	Checked        bool                         `json:"checked"`
+	ChildOrder     uint32                       `json:"child_order"`
+	Collapsed      bool                         `json:"collapsed"`
+	CompletedAt    *string                      `json:"completed_at"`
+	Content        string                       `json:"content"`
+	DayOrder       int                          `json:"day_order"`
+	Description    string                       `json:"description"`
+	Due            *datatypes.JSONType[DueDate] `json:"due"`
+	Duration       *string                      `json:"duration"`
+	ID             string                       `json:"id"`
+	IsDeleted      bool                         `json:"is_deleted"`
+	Labels         datatypes.JSONSlice[string]  `json:"labels"`
+	ParentID       *string                      `json:"parent_id"`
+	Priority       int                          `json:"priority"`
+	ProjectID      string                       `json:"project_id"`
+	ResponsibleUID *string                      `json:"responsible_uid"`
+	SectionID      *string                      `json:"section_id"`
+	SyncID         *string                      `json:"sync_id"`
+	UpdatedAt      string                       `json:"updated_at"`
+	UserID         string                       `json:"user_id"`
+	V2ID           string                       `json:"v2_id"`
+	V2ParentID     *string                      `json:"v2_parent_id"`
+	V2ProjectID    string                       `json:"v2_project_id"`
+	V2SectionID    *string                      `json:"v2_section_id"`
 }
 
-func NewTask() Task {
-	return Task{
-		Id:        utils.GenerateId(),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Status:    TaskStatusPending,
-		Tags:      make([]string, 0),
+func ListTasks() ([]Task, error) {
+	db, err := GetDB()
+	if err != nil {
+		return nil, err
 	}
-}
 
-func ListTasks(filters []sql_builder.Filter) ([]Task, error) {
-	return nil, nil
-	// conn, err := connect()
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to list tasks: %w", err)
-	// }
-	//
-	// builder := sql_builder.New().
-	// 	Select("tasks.id, tasks.template_id, assignments.id, tasks.data").
-	// 	From("tasks").
-	// 	Join("assignments", "tasks.id = assignments.task_id").
-	// 	Filter(sql_builder.Filter{
-	// 		Key:      "tasks.data ->> '$.status'",
-	// 		Operator: sql_builder.Neq,
-	// 		Value:    "'done'",
-	// 	})
-	//
-	// for _, filter := range filters {
-	// 	builder.Filter(filter)
-	// }
-	//
-	// if os.Getenv("DEBUG") != "" {
-	// 	log.Println(builder.SQL())
-	// }
-	//
-	// rows, err := conn.Query(builder.SQL())
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to list tasks: %w", err)
-	// }
-	//
-	// var tasks []Task
-	//
-	// for rows.Next() {
-	// 	var taskId string
-	// 	var templateId sql.NullString
-	// 	var shortId sql.NullInt64
-	// 	var data []byte
-	//
-	// 	err = rows.Scan(&taskId, &templateId, &shortId, &data)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("Failed to list tasks: %w", err)
-	// 	}
-	//
-	// 	var task Task
-	// 	err = json.Unmarshal(data, &task)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("Failed to list tasks: %w", err)
-	// 	}
-	//
-	// 	task.Id = taskId
-	//
-	// 	if shortId.Valid {
-	// 		task.ShortId = int(shortId.Int64)
-	// 	}
-	//
-	// 	if templateId.Valid {
-	// 		task.TemplateId = templateId.String
-	// 	}
-	//
-	// 	tasks = append(tasks, task)
-	// }
-	//
-	// return tasks, nil
+	var tasks []Task
+	tx := db.Limit(10).Find(&tasks)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	if len(tasks) == 0 {
+		return nil, errors.New("No tasks match filters")
+	}
+
+	return tasks, nil
 }
 
 func Add(task Task) (int64, error) {

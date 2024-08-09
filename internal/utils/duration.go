@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -13,7 +14,31 @@ const (
 	hoursInYear  = 24 * 365
 )
 
-func ShortDuration(t time.Time) string {
+func parseDate(date string) (time.Time, error) {
+	if date == "" {
+		return time.Time{}, errors.New("nil date")
+	}
+
+	// Automatic date parsing
+	format := "2006-01-02"
+	if strings.Contains(date, "T") {
+		format = "2006-01-02T15:04:05Z"
+	}
+
+	t, err := time.Parse(format, date)
+	if err != nil {
+		return t, err
+	}
+
+	return t, nil
+}
+
+func ShortDuration(date string, fallback string) string {
+	t, err := parseDate(date)
+	if err != nil {
+		return fallback
+	}
+
 	now := time.Now()
 	duration := now.Sub(t)
 
@@ -33,7 +58,5 @@ func ShortDuration(t time.Time) string {
 		return fmt.Sprintf("%ds", int(duration.Seconds()))
 	}
 
-	// If the duration is less than 1 second, we just return "-". This is
-	// primarily to make the tests more stable.
-	return "-"
+	return fallback
 }
