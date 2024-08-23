@@ -1,7 +1,6 @@
 package project
 
 import (
-	"github.com/MakeNowJust/heredoc"
 	"github.com/fatih/color"
 	"github.com/mskelton/todo/internal/printer"
 	"github.com/mskelton/todo/internal/storage"
@@ -43,7 +42,6 @@ func printProjects(projects []storage.Project) error {
 
 		table.Rows = append(table.Rows, printer.Row{
 			Cells: []string{
-				// strconv.Itoa(int(project.ChildOrder)),
 				project.ID,
 				project.Name,
 				favorite,
@@ -52,20 +50,12 @@ func printProjects(projects []storage.Project) error {
 		})
 	}
 
-	table.Print()
-
-	return nil
+	return table.Print(storage.StorageTypeProject)
 }
 
 var ProjectCmd = &cobra.Command{
 	Use:   "projects",
-	Short: "List tasks due today",
-	Long: heredoc.Doc(`
-    Bytes are stored as markdown using a unique id representing the date and time
-    the byte was created. This command will generate a new id and print it to
-    stdout. This is typically not needed as the id is automatically generated
-    when creating a new byte.
-  `),
+	Short: "List projects",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		projects, err := listProjects()
 		if err != nil {

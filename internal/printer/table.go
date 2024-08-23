@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-runewidth"
+	"github.com/mskelton/todo/internal/storage"
 )
 
 type Row struct {
@@ -23,9 +24,20 @@ func pad(str string, w int) string {
 	return str + strings.Repeat(" ", w-runewidth.StringWidth(str))
 }
 
-func (table *Table) Print() {
+func (table *Table) Print(storageType storage.StorageType) error {
 	widths := make([]int, len(table.Columns))
 	boldUnderline := color.New().Add(color.Bold, color.Underline).SprintFunc()
+
+	// Replace the ID column with a numerical ID
+	var ids map[int]string
+	if table.Columns[0] == "ID" {
+		ids = make(map[int]string)
+
+		for i, row := range table.Rows {
+			ids[i+1] = row.Cells[0]
+			row.Cells[0] = fmt.Sprintf("%d", i+1)
+		}
+	}
 
 	// Find the maximum width of each column
 	for _, row := range table.Rows {
@@ -85,4 +97,6 @@ func (table *Table) Print() {
 			color.New(color.BgBlack).Println(line)
 		}
 	}
+
+	return storage.SaveMapping(storageType, ids)
 }

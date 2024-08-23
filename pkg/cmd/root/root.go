@@ -7,6 +7,7 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/mskelton/todo/pkg/cmd/project"
+	"github.com/mskelton/todo/pkg/cmd/sync"
 	"github.com/mskelton/todo/pkg/cmd/today"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -43,6 +44,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/todo/config.json)")
 
+	rootCmd.AddCommand(sync.SyncCmd)
 	rootCmd.AddCommand(today.TodayCmd)
 	rootCmd.AddCommand(project.ProjectCmd)
 }

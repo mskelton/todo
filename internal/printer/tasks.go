@@ -46,7 +46,6 @@ func PrintTasks(tasks []storage.Task) error {
 
 		table.Rows = append(table.Rows, Row{
 			Cells: []string{
-				// strconv.Itoa(int(project.ChildOrder)),
 				task.ID,
 				priority,
 				due,
@@ -60,6 +59,5 @@ func PrintTasks(tasks []storage.Task) error {
 		})
 	}
 
-	table.Print()
-	return nil
+	return table.Print(storage.StorageTypeTask)
 }

@@ -59,6 +59,7 @@ func Migrate() error {
 	}
 
 	return errors.Join(
+		db.AutoMigrate(&IdMapping{}),
 		db.AutoMigrate(&Project{}),
 		db.AutoMigrate(&Task{}),
 	)
