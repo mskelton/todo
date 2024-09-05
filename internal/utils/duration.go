@@ -21,8 +21,10 @@ func parseDate(date string) (time.Time, error) {
 
 	// Automatic date parsing
 	format := "2006-01-02"
-	if strings.Contains(date, "T") {
-		format = "2006-01-02T15:04:05Z"
+	if strings.Contains(date, "Z") {
+		format = "2006-01-02T15:04:05.000000Z"
+	} else if strings.Contains(date, "T") {
+		format = "2006-01-02T15:04:05"
 	}
 
 	t, err := time.Parse(format, date)
@@ -40,22 +42,27 @@ func ShortDuration(date string, fallback string) string {
 	}
 
 	now := time.Now()
-	duration := now.Sub(t)
+	duration := t.Sub(now)
+	sign := " "
+	if duration < 0 {
+		sign = "-"
+		duration = -duration
+	}
 
 	if duration.Hours() > hoursInYear {
-		return strings.Replace(fmt.Sprintf("%.1fy", duration.Hours()/hoursInYear), ".0", "", 1)
+		return strings.Replace(fmt.Sprintf("%s%.1fy", sign, duration.Hours()/hoursInYear), ".0", "", 1)
 	} else if duration.Hours() > hoursInMonth {
-		return fmt.Sprintf("%dmo", int(duration.Hours()/hoursInMonth))
+		return fmt.Sprintf("%s%dmo", sign, int(duration.Hours()/hoursInMonth))
 	} else if duration.Hours() > hoursInWeek {
-		return fmt.Sprintf("%dw", int(duration.Hours()/hoursInWeek))
+		return fmt.Sprintf("%s%dw", sign, int(duration.Hours()/hoursInWeek))
 	} else if duration.Hours() > hoursInDay {
-		return fmt.Sprintf("%dd", int(duration.Hours()/hoursInDay))
+		return fmt.Sprintf("%s%dd", sign, int(duration.Hours()/hoursInDay))
 	} else if duration.Hours() > 1 {
-		return fmt.Sprintf("%dh", int(duration.Hours()))
+		return fmt.Sprintf("%s%dh", sign, int(duration.Hours()))
 	} else if duration.Minutes() > 1 {
-		return fmt.Sprintf("%dm", int(duration.Minutes()))
+		return fmt.Sprintf("%s%dm", sign, int(duration.Minutes()))
 	} else if duration.Seconds() > 1 {
-		return fmt.Sprintf("%ds", int(duration.Seconds()))
+		return fmt.Sprintf("%s%ds", sign, int(duration.Seconds()))
 	}
 
 	return fallback

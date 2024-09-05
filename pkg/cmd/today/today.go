@@ -1,8 +1,12 @@
 package today
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/MakeNowJust/heredoc"
 	"github.com/mskelton/todo/internal/printer"
+	"github.com/mskelton/todo/internal/sql_builder"
 	"github.com/mskelton/todo/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -17,7 +21,22 @@ var TodayCmd = &cobra.Command{
     when creating a new byte.
   `),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		tasks, err := storage.ListTasks()
+		today := time.Now().Format("2006-01-02")
+		filters := []sql_builder.Filter{
+			{
+				Key:      "due",
+				Operator: sql_builder.Neq,
+				Value:    "",
+			},
+			{
+				Key:      "date(json_extract(due, '$.date'))",
+				Operator: sql_builder.Lte,
+				Value:    fmt.Sprintf("date('%s')", today),
+				IsRaw:    true,
+			},
+		}
+
+		tasks, err := storage.ListTasks(filters)
 		if err != nil {
 			return err
 		}

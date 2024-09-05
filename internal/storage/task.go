@@ -3,9 +3,6 @@ package storage
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"log"
-	"os"
 
 	"github.com/mskelton/todo/internal/sql_builder"
 	"gorm.io/datatypes"
@@ -24,7 +21,7 @@ type Task struct {
 	AddedByUID     string                       `json:"added_by_uid"`
 	AssignedByUID  *string                      `json:"assigned_by_uid"`
 	Checked        bool                         `json:"checked"`
-	ChildOrder     uint32                       `json:"child_order"`
+	ChildOrder     int32                        `json:"child_order"`
 	Collapsed      bool                         `json:"collapsed"`
 	CompletedAt    *string                      `json:"completed_at"`
 	Content        string                       `json:"content"`
@@ -49,14 +46,14 @@ type Task struct {
 	V2SectionID    *string                      `json:"v2_section_id"`
 }
 
-func ListTasks() ([]Task, error) {
+func ListTasks(filters []sql_builder.Filter) ([]Task, error) {
 	db, err := GetDB()
 	if err != nil {
 		return nil, err
 	}
 
 	var tasks []Task
-	tx := db.Limit(10).Find(&tasks)
+	tx := sql_builder.WithFilters(db, filters).Find(&tasks)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -145,38 +142,38 @@ func Count(filters []sql_builder.Filter) (int, error) {
 }
 
 func getIds(conn *sql.DB, filters []sql_builder.Filter) ([]int, error) {
-	builder := sql_builder.New().
-		Select("assignments.id").
-		From("tasks").
-		Join("assignments", "tasks.id = assignments.task_id")
+	// builder := sql_builder.New().
+	// 	Select("assignments.id").
+	// 	From("tasks").
+	// 	Join("assignments", "tasks.id = assignments.task_id")
+	//
+	// for _, filter := range filters {
+	// 	builder.Filter(filter)
+	// }
+	//
+	// debug := os.Getenv("DEBUG") != ""
+	// if debug {
+	// 	log.Println(builder.SQL())
+	// }
+	//
+	// res, err := conn.Query(builder.SQL())
+	// if err != nil {
+	// 	return nil, fmt.Errorf("Failed to get task ids: %w", err)
+	// }
+	//
+	// var ids []int
+	// for res.Next() {
+	// 	var id int
+	// 	err = res.Scan(&id)
+	//
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("Failed to get task id: %w", err)
+	// 	}
+	//
+	// 	ids = append(ids, id)
+	// }
 
-	for _, filter := range filters {
-		builder.Filter(filter)
-	}
-
-	debug := os.Getenv("DEBUG") != ""
-	if debug {
-		log.Println(builder.SQL())
-	}
-
-	res, err := conn.Query(builder.SQL())
-	if err != nil {
-		return nil, fmt.Errorf("Failed to get task ids: %w", err)
-	}
-
-	var ids []int
-	for res.Next() {
-		var id int
-		err = res.Scan(&id)
-
-		if err != nil {
-			return nil, fmt.Errorf("Failed to get task id: %w", err)
-		}
-
-		ids = append(ids, id)
-	}
-
-	return ids, nil
+	return nil, nil
 }
 
 type QueryEdit struct {

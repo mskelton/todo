@@ -2,7 +2,7 @@ package storage
 
 type Project struct {
 	CanAssignTasks bool    `json:"can_assign_tasks"`
-	ChildOrder     uint32  `json:"child_order"`
+	ChildOrder     int32   `json:"child_order"`
 	Collapsed      bool    `json:"collapsed"`
 	Color          string  `json:"color"`
 	CreatedAt      string  `json:"created_at"`

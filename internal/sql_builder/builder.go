@@ -1,82 +1,44 @@
 package sql_builder
 
-import "fmt"
+import (
+	"fmt"
 
-type Builder struct {
-	query     string
-	usedWhere bool
-	usedSet   bool
-}
+	"gorm.io/gorm"
+)
 
 type Operator string
 
 const (
-	Eq      Operator = "="
-	Neq     Operator = "!="
-	In      Operator = "in"
-	Like    Operator = "like"
-	NotLike Operator = "not like"
+	Eq        Operator = "="
+	Neq       Operator = "!="
+	Gt        Operator = ">"
+	Gte       Operator = ">="
+	Lt        Operator = "<"
+	Lte       Operator = "<="
+	In        Operator = "in"
+	Like      Operator = "like"
+	NotLike   Operator = "not like"
+	IsNull    Operator = "is null"
+	IsNotNull Operator = "is not null"
 )
 
 type Filter struct {
 	Key      string
 	Operator Operator
 	Value    string
+	IsRaw    bool
 }
 
-func New() *Builder {
-	return &Builder{}
-}
-
-func (b *Builder) Select(columns string) *Builder {
-	b.query += "select " + columns
-	return b
-}
-
-func (b *Builder) Update(table string) *Builder {
-	b.query += "update " + table
-	return b
-}
-
-func (b *Builder) Delete(table string) *Builder {
-	b.query += "delete from " + table
-	return b
-}
-
-func (b *Builder) From(table string) *Builder {
-	b.query += " from " + table
-	return b
-}
-
-func (b *Builder) Join(table string, condition string) *Builder {
-	b.query += fmt.Sprintf(" join %s on %s", table, condition)
-	return b
-}
-
-func (b *Builder) Filter(filter Filter) *Builder {
-	if !b.usedWhere {
-		b.query += " where "
-		b.usedWhere = true
-	} else {
-		b.query += " and "
+func WithFilters(db *gorm.DB, filters []Filter) *gorm.DB {
+	for _, filter := range filters {
+		if filter.Operator == IsNull || filter.Operator == IsNotNull {
+			db = db.Where(fmt.Sprintf("%s %s", filter.Key, filter.Operator))
+		} else if filter.IsRaw {
+			db = db.Where(fmt.Sprintf("%s %s %s", filter.Key, filter.Operator, filter.Value))
+		} else {
+			db = db.Where(fmt.Sprintf("%s %s ?", filter.Key, filter.Operator), filter.Value)
+		}
 	}
 
-	b.query += fmt.Sprintf("%s %s %s", filter.Key, filter.Operator, filter.Value)
-	return b
-}
-
-func (b *Builder) Set(fields string) *Builder {
-	if !b.usedSet {
-		b.query += " set "
-		b.usedSet = true
-	} else {
-		b.query += ", "
-	}
-
-	b.query += fields
-	return b
-}
-
-func (b *Builder) SQL() string {
-	return b.query
+	return db
 }
