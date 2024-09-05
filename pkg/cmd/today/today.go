@@ -6,7 +6,6 @@ import (
 
 	"github.com/MakeNowJust/heredoc"
 	"github.com/mskelton/todo/internal/printer"
-	"github.com/mskelton/todo/internal/sql_builder"
 	"github.com/mskelton/todo/internal/storage"
 	"github.com/spf13/cobra"
 )
@@ -22,15 +21,15 @@ var TodayCmd = &cobra.Command{
   `),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		today := time.Now().Format("2006-01-02")
-		filters := []sql_builder.Filter{
+		filters := []storage.Filter{
 			{
 				Key:      "due",
-				Operator: sql_builder.Neq,
+				Operator: storage.Neq,
 				Value:    "",
 			},
 			{
 				Key:      "date(json_extract(due, '$.date'))",
-				Operator: sql_builder.Lte,
+				Operator: storage.Lte,
 				Value:    fmt.Sprintf("date('%s')", today),
 				IsRaw:    true,
 			},

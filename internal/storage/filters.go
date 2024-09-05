@@ -1,4 +1,4 @@
-package sql_builder
+package storage
 
 import (
 	"fmt"

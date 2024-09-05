@@ -1,4 +1,4 @@
-package storage
+package api
 
 import (
 	"bytes"
@@ -8,12 +8,13 @@ import (
 	"net/http"
 
 	"github.com/mskelton/todo/internal/config"
+	"github.com/mskelton/todo/internal/models"
 )
 
 type SyncResponse struct {
 	FullSync      bool              `json:"full_sync"`
-	Projects      []Project         `json:"projects"`
-	Tasks         []Task            `json:"items"`
+	Projects      []models.Project  `json:"projects"`
+	Tasks         []models.Task     `json:"items"`
 	SyncToken     string            `json:"sync_token"`
 	TempIDMapping map[string]uint32 `json:"temp_id_mapping"`
 }

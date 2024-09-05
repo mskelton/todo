@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mskelton/todo/internal/storage"
+	"github.com/mskelton/todo/internal/models"
 	"github.com/mskelton/todo/internal/utils"
 )
 
@@ -16,7 +16,7 @@ func trunc(s string, length int) string {
 	return s
 }
 
-func PrintTasks(tasks []storage.Task) error {
+func PrintTasks(tasks []models.Task) error {
 	table := Table{
 		Columns: []string{
 			"ID",
@@ -59,5 +59,5 @@ func PrintTasks(tasks []storage.Task) error {
 		})
 	}
 
-	return table.Print(storage.StorageTypeTask)
+	return table.Print(models.StorageTypeTask)
 }

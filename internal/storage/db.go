@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/mskelton/todo/internal/models"
 )
 
 func getDBPath() (string, error) {
@@ -59,8 +60,8 @@ func Migrate() error {
 	}
 
 	return errors.Join(
-		db.AutoMigrate(&IdMapping{}),
-		db.AutoMigrate(&Project{}),
-		db.AutoMigrate(&Task{}),
+		db.AutoMigrate(&models.IdMapping{}),
+		db.AutoMigrate(&models.Project{}),
+		db.AutoMigrate(&models.Task{}),
 	)
 }

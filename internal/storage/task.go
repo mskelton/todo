@@ -4,56 +4,17 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/mskelton/todo/internal/sql_builder"
-	"gorm.io/datatypes"
+	"github.com/mskelton/todo/internal/models"
 )
 
-type DueDate struct {
-	Date        string `json:"date"`
-	IsRecurring bool   `json:"is_recurring"`
-	Lang        string `json:"lang"`
-	String      string `json:"string"`
-	Timezone    string `json:"timezone"`
-}
-
-type Task struct {
-	AddedAt        string                       `json:"added_at"`
-	AddedByUID     string                       `json:"added_by_uid"`
-	AssignedByUID  *string                      `json:"assigned_by_uid"`
-	Checked        bool                         `json:"checked"`
-	ChildOrder     int32                        `json:"child_order"`
-	Collapsed      bool                         `json:"collapsed"`
-	CompletedAt    *string                      `json:"completed_at"`
-	Content        string                       `json:"content"`
-	DayOrder       int                          `json:"day_order"`
-	Description    string                       `json:"description"`
-	Due            *datatypes.JSONType[DueDate] `json:"due"`
-	Duration       *string                      `json:"duration"`
-	ID             string                       `json:"id"`
-	IsDeleted      bool                         `json:"is_deleted"`
-	Labels         datatypes.JSONSlice[string]  `json:"labels"`
-	ParentID       *string                      `json:"parent_id"`
-	Priority       int                          `json:"priority"`
-	ProjectID      string                       `json:"project_id"`
-	ResponsibleUID *string                      `json:"responsible_uid"`
-	SectionID      *string                      `json:"section_id"`
-	SyncID         *string                      `json:"sync_id"`
-	UpdatedAt      string                       `json:"updated_at"`
-	UserID         string                       `json:"user_id"`
-	V2ID           string                       `json:"v2_id"`
-	V2ParentID     *string                      `json:"v2_parent_id"`
-	V2ProjectID    string                       `json:"v2_project_id"`
-	V2SectionID    *string                      `json:"v2_section_id"`
-}
-
-func ListTasks(filters []sql_builder.Filter) ([]Task, error) {
+func ListTasks(filters []Filter) ([]models.Task, error) {
 	db, err := GetDB()
 	if err != nil {
 		return nil, err
 	}
 
-	var tasks []Task
-	tx := sql_builder.WithFilters(db, filters).Find(&tasks)
+	var tasks []models.Task
+	tx := WithFilters(db, filters).Find(&tasks)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -65,7 +26,7 @@ func ListTasks(filters []sql_builder.Filter) ([]Task, error) {
 	return tasks, nil
 }
 
-func Add(task Task) (int64, error) {
+func Add(task models.Task) (int64, error) {
 	return 0, nil
 	// data, err := json.Marshal(task)
 	// if err != nil {
@@ -106,7 +67,7 @@ func Add(task Task) (int64, error) {
 	// return id, nil
 }
 
-func Count(filters []sql_builder.Filter) (int, error) {
+func Count(filters []Filter) (int, error) {
 	return 0, nil
 	// conn, err := connect()
 	// if err != nil {
@@ -141,7 +102,7 @@ func Count(filters []sql_builder.Filter) (int, error) {
 	// return count, nil
 }
 
-func getIds(conn *sql.DB, filters []sql_builder.Filter) ([]int, error) {
+func getIds(conn *sql.DB, filters []Filter) ([]int, error) {
 	// builder := sql_builder.New().
 	// 	Select("assignments.id").
 	// 	From("tasks").
@@ -181,7 +142,7 @@ type QueryEdit struct {
 	Value string
 }
 
-func Edit(filters []sql_builder.Filter, edits []QueryEdit) ([]int, error) {
+func Edit(filters []Filter, edits []QueryEdit) ([]int, error) {
 	return nil, nil
 	// conn, err := connect()
 	// if err != nil {
@@ -213,7 +174,7 @@ func Edit(filters []sql_builder.Filter, edits []QueryEdit) ([]int, error) {
 	// return getIds(conn, filters)
 }
 
-func Delete(filters []sql_builder.Filter) ([]int, error) {
+func Delete(filters []Filter) ([]int, error) {
 	// conn, err := connect()
 	// if err != nil {
 	// 	return nil, fmt.Errorf("Failed to delete tasks: %w", err)

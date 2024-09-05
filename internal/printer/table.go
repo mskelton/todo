@@ -6,6 +6,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-runewidth"
+	"github.com/mskelton/todo/internal/models"
 	"github.com/mskelton/todo/internal/storage"
 )
 
@@ -24,7 +25,7 @@ func pad(str string, w int) string {
 	return str + strings.Repeat(" ", w-runewidth.StringWidth(str))
 }
 
-func (table *Table) Print(storageType storage.StorageType) error {
+func (table *Table) Print(storageType models.StorageType) error {
 	widths := make([]int, len(table.Columns))
 	boldUnderline := color.New().Add(color.Bold, color.Underline).SprintFunc()
 
@@ -98,5 +99,5 @@ func (table *Table) Print(storageType storage.StorageType) error {
 		}
 	}
 
-	return storage.SaveMapping(storageType, ids)
+	return storage.SaveIdMapping(storageType, ids)
 }
