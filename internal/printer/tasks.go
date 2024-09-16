@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/mskelton/todo/internal/models"
+	"github.com/mskelton/todo/internal/storage"
 	"github.com/mskelton/todo/internal/utils"
 )
 
@@ -16,7 +17,7 @@ func trunc(s string, length int) string {
 	return s
 }
 
-func PrintTasks(tasks []models.Task) error {
+func PrintTasks(tasks []storage.ListTasksResult) error {
 	table := Table{
 		Columns: []string{
 			"ID",
@@ -50,7 +51,7 @@ func PrintTasks(tasks []models.Task) error {
 				priority,
 				due,
 				trunc(task.Content, 50),
-				task.ProjectID,
+				task.ProjectName,
 				strings.Join(task.Labels, ", "),
 				// If the duration is less than 1 second, we just return "-". This is
 				// primarily to make the tests more stable.

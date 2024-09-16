@@ -7,14 +7,24 @@ import (
 	"github.com/mskelton/todo/internal/models"
 )
 
-func ListTasks(filters []Filter) ([]models.Task, error) {
+type ListTasksResult struct {
+	models.Task
+	ProjectName string
+}
+
+func ListTasks(filters []Filter) ([]ListTasksResult, error) {
 	db, err := GetDB()
 	if err != nil {
 		return nil, err
 	}
 
-	var tasks []models.Task
-	tx := WithFilters(db, filters).Find(&tasks)
+	var tasks []ListTasksResult
+
+	tx := WithFilters(db.Model(&models.Task{}), filters).
+		Select("tasks.*, projects.name as project_name").
+		Joins("left join projects on projects.id = tasks.project_id").
+		Scan(&tasks)
+
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
