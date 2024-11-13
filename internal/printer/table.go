@@ -90,8 +90,7 @@ func (table *Table) Print(storageType models.StorageType) error {
 
 		line := strings.Join(cells, " ")
 		if row.Highlight {
-			// color.BGRGB(129, 97, 170)
-			color.New(color.BgMagenta).Println(line)
+			color.BgRGB(129, 97, 170).Println(line)
 		} else if i%2 == 0 {
 			fmt.Println(line)
 		} else {
